@@ -55,6 +55,7 @@ public class Match {
     public int getWin_by_runs(){return win_by_runs;}
     public int getWin_by_wickets(){return win_by_wickets;}
     public String getPlayer_of_match(){return player_of_match;}
+    public String getVenue(){return venue;}
     public String getUmpire1(){return umpire1;}
     public String getUmpire2(){return umpire2;}
     public void setId(int id) {
@@ -101,5 +102,6 @@ public class Match {
     public void setUmpire1(String umpire1){this.umpire1 = umpire1;}
 
     public void setUmpire2(String umpire2){this.umpire2 = umpire2;}
+
 
 }

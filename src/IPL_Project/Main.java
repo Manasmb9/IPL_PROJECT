@@ -40,7 +40,7 @@ public class Main {
     public static final int WIN_BY_RUNS = 11;
     public static final int WIN_BY_WICKETS = 12;
 
-    public static ArrayList<Match> mac(String path) {
+    public static ArrayList<Match> matchRead(String path) {
 //    public static void main(String[] args) {
 
         String split = ",";
@@ -81,10 +81,10 @@ public class Main {
         }
         return matchData;
     }
-    public static ArrayList<Delivery>del(String path) {
+    public static ArrayList<Delivery>deliveryRead(String path) {
         String Split = ",";
         String line = "";
-        ArrayList<Delivery> deliverydata = new ArrayList<>();
+        ArrayList<Delivery> deliveryData = new ArrayList<>();
         try {
             BufferedReader br = new BufferedReader(new FileReader(path));
             line = br.readLine();
@@ -110,7 +110,7 @@ public class Main {
                 delivery.setBatsmanRuns(Integer.parseInt(data[BATSMAN_RUNS]));
                 delivery.setExtraRuns(Integer.parseInt(data[EXTRA_RUNS]));
                 delivery.setTotalRuns(Integer.parseInt(data[TOTAL_RUNS]));
-                deliverydata.add(delivery);
+                deliveryData.add(delivery);
 
             }
 
@@ -120,30 +120,51 @@ public class Main {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return deliverydata;
+        return deliveryData;
 
     }
     public static void main(String[] args) {
 
 
-        ArrayList<Match> mat = mac("/home/dell/Downloads/matches.csv");
-        HashMap<Integer, Integer> matchesPlayedPerYear = perYear(mat);
+            ArrayList<Match> matchTotalData = matchRead("/home/dell/Downloads/matches.csv");
+            ArrayList<Delivery> deliveriesTotalData = deliveryRead("/home/dell/Downloads/deliveries.csv");
+            HashMap<Integer, Integer> matchesPlayedPerYear = perYear(matchTotalData);
 //        for(Match a : mat)
 //        System.out.println(a.getMatchId() + " ," + a.getSeason() + " , " + a.getCity());
-//        System.out.println(matchesPlayedPerYear);
-        HashMap<String, Integer> matchesWonPerYear = wonPerYear(mat);
-//        System.out.println(matchesWonPerYear);
+            System.out.println(matchesPlayedPerYear);
+            HashMap<String, Integer> matchesWonPerYear = wonPerYear(matchTotalData);
+            System.out.println(matchesWonPerYear);
 //        Delivery deliver = new Delivery();
-        ArrayList<Delivery> deliver = del("/home/dell/Downloads/deliveries.csv");
+
 //        for (Delivery a : deliver) {
 //            System.out.println(a.getBowler());
 //        }
-        HashMap<String, Integer> extra = extraRuns(mat, deliver);
-        String Economicbowler = Eb(mat, deliver);
+            HashMap<String, Integer> extraRunsPerTeam = extraRuns(matchTotalData, deliveriesTotalData);
+            System.out.println(extraRunsPerTeam);
+            String economicBowler = economicBowlerOverall(matchTotalData, deliveriesTotalData);
+            System.out.println(economicBowler);
+            HashMap<String, Integer > tossWinners = tossWinnersPerTeam(matchTotalData);
+            System.out.println(tossWinners);
 
 
     }
-    private static String Eb(ArrayList<Match> mat, ArrayList<Delivery> deliver) {
+
+    private static HashMap<String, Integer> tossWinnersPerTeam(ArrayList<Match> mat) {
+        HashMap<String, Integer> tossWinners = new HashMap<>();
+        for (Match i : mat) {
+
+            if (tossWinners.containsKey(i.getTossWinner())){
+                tossWinners.put(i.getTossWinner(), tossWinners.get(i.getTossWinner()) + 1);
+            } else {
+                tossWinners.put(i.getTossWinner(), 1);
+            }
+
+        }
+//        System.out.println(tossWinners);
+        return tossWinners;
+    }
+
+    private static String economicBowlerOverall(ArrayList<Match> mat, ArrayList<Delivery> deliver) {
         HashMap<String, Integer> bowlsCount = new HashMap<>();
         HashMap<String, Integer> bowlruns = new HashMap<>();
         String ecobowler = "";
@@ -183,11 +204,11 @@ public class Main {
 
 //        System.out.println(bowlruns);
 //       System.out.println(bowlsCount);
-        System.out.println(ecobowler + "," + lasteco);
+//        System.out.println(ecobowler + "," + lasteco);
         return ecobowler + "," + lasteco ;
     }
     private static HashMap<String, Integer> extraRuns (ArrayList < Match > mat, ArrayList < Delivery > deliver){
-        HashMap<String, Integer> elementCount = new HashMap<>();
+        HashMap<String, Integer> extraRuns = new HashMap<>();
         int firstmatchid = 0;
         int lastmatchid = 0;
         for (Match i : mat) {
@@ -204,23 +225,23 @@ public class Main {
 //                    System.out.println(a.getMatchId());
 
 //                    System.out.println(a.getExtraRuns());
-                if (elementCount.containsKey(a.getBattingTeam())) {
+                if (extraRuns.containsKey(a.getBattingTeam())) {
 
-                    elementCount.put(a.getBattingTeam(), elementCount.get(a.getBattingTeam()) + a.getExtraRuns());
+                    extraRuns.put(a.getBattingTeam(), extraRuns.get(a.getBattingTeam()) + a.getExtraRuns());
                 } else {
-                    elementCount.put(a.getBattingTeam(), a.getExtraRuns());
+                    extraRuns.put(a.getBattingTeam(), a.getExtraRuns());
                 }
             }
         }
 //            System.out.println(elementCount);
-        return null;
+        return extraRuns;
     }
 
 
     private static HashMap<String, Integer> wonPerYear (ArrayList < Match > mat) {
         HashMap<String, Integer> WinnerCount = new HashMap<>();
         for (Match i : mat) {
-            if (i.getResult() != "no result") {
+//            if (i.getResult() != "no result") {
                 if (WinnerCount.containsKey(i.getWinner())) {
                     WinnerCount.put(i.getWinner(), WinnerCount.get(i.getWinner()) + 1);
 
@@ -229,7 +250,7 @@ public class Main {
                 }
 
             }
-        }
+//        }
         return WinnerCount;
     }
 
@@ -248,5 +269,6 @@ public class Main {
 //  System.out.println(elementCountMap);
         return SeasonCount;
     }
+
 }
 
