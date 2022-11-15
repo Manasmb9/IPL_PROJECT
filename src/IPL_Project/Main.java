@@ -123,5 +123,130 @@ public class Main {
         return deliverydata;
 
     }
+    public static void main(String[] args) {
 
+
+        ArrayList<Match> mat = mac("/home/dell/Downloads/matches.csv");
+        HashMap<Integer, Integer> matchesPlayedPerYear = perYear(mat);
+//        for(Match a : mat)
+//        System.out.println(a.getMatchId() + " ," + a.getSeason() + " , " + a.getCity());
+//        System.out.println(matchesPlayedPerYear);
+        HashMap<String, Integer> matchesWonPerYear = wonPerYear(mat);
+//        System.out.println(matchesWonPerYear);
+//        Delivery deliver = new Delivery();
+        ArrayList<Delivery> deliver = del("/home/dell/Downloads/deliveries.csv");
+//        for (Delivery a : deliver) {
+//            System.out.println(a.getBowler());
+//        }
+        HashMap<String, Integer> extra = extraRuns(mat, deliver);
+        String Economicbowler = Eb(mat, deliver);
+
+
+    }
+    private static String Eb(ArrayList<Match> mat, ArrayList<Delivery> deliver) {
+        HashMap<String, Integer> bowlsCount = new HashMap<>();
+        HashMap<String, Integer> bowlruns = new HashMap<>();
+        String ecobowler = "";
+        for (Match i : mat) {
+            if (i.getSeason() == 2015) {
+
+
+                for (Delivery a : deliver) {
+                    if (i.getId() == a.getMatchId()) {
+                        if (bowlsCount.containsKey(a.getBowler())) {
+                            bowlsCount.put(a.getBowler(), bowlsCount.get(a.getBowler()) + 1);
+                        } else {
+                            bowlsCount.put(a.getBowler(),1);
+                        }
+                        if(bowlruns.containsKey(a.getBowler())){
+                            bowlruns.put(a.getBowler(),bowlruns.get(a.getBowler()) + a.getTotalRuns());
+                        }
+                        else{
+                            bowlruns.put(a.getBowler(),a.getTotalRuns());
+                        }
+
+
+
+                    }
+                }
+            }
+        }
+        Float firsteco, lasteco = Float.MAX_VALUE;
+        for(String bowler : bowlruns.keySet()){
+            firsteco = (bowlruns.get(bowler) * 6F / bowlsCount.get(bowler));
+            if(firsteco < lasteco){
+                lasteco = firsteco;
+                ecobowler = bowler;
+            }
+        }
+
+
+//        System.out.println(bowlruns);
+//       System.out.println(bowlsCount);
+        System.out.println(ecobowler + "," + lasteco);
+        return ecobowler + "," + lasteco ;
+    }
+    private static HashMap<String, Integer> extraRuns (ArrayList < Match > mat, ArrayList < Delivery > deliver){
+        HashMap<String, Integer> elementCount = new HashMap<>();
+        int firstmatchid = 0;
+        int lastmatchid = 0;
+        for (Match i : mat) {
+            if (i.getSeason() == 2016) {
+                if (firstmatchid == 0) {
+                    firstmatchid = i.getId();
+                }
+                lastmatchid = i.getId();
+
+            }
+        }
+        for (Delivery a : deliver) {
+            if (a.getMatchId() >= firstmatchid && a.getMatchId() <= lastmatchid) {
+//                    System.out.println(a.getMatchId());
+
+//                    System.out.println(a.getExtraRuns());
+                if (elementCount.containsKey(a.getBattingTeam())) {
+
+                    elementCount.put(a.getBattingTeam(), elementCount.get(a.getBattingTeam()) + a.getExtraRuns());
+                } else {
+                    elementCount.put(a.getBattingTeam(), a.getExtraRuns());
+                }
+            }
+        }
+//            System.out.println(elementCount);
+        return null;
+    }
+
+
+    private static HashMap<String, Integer> wonPerYear (ArrayList < Match > mat) {
+        HashMap<String, Integer> WinnerCount = new HashMap<>();
+        for (Match i : mat) {
+            if (i.getResult() != "no result") {
+                if (WinnerCount.containsKey(i.getWinner())) {
+                    WinnerCount.put(i.getWinner(), WinnerCount.get(i.getWinner()) + 1);
+
+                } else {
+                    WinnerCount.put(i.getWinner(), 1);
+                }
+
+            }
+        }
+        return WinnerCount;
+    }
+
+
+    private static HashMap<Integer, Integer> perYear (ArrayList < Match > mat) {
+        HashMap<Integer, Integer> SeasonCount = new HashMap<>();
+        for (Match i : mat) {
+
+            if (SeasonCount.containsKey(i.getSeason())) {
+                SeasonCount.put(i.getSeason(), SeasonCount.get(i.getSeason()) + 1);
+            } else {
+                SeasonCount.put(i.getSeason(), 1);
+            }
+
+        }
+//  System.out.println(elementCountMap);
+        return SeasonCount;
+    }
 }
+
